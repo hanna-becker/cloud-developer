@@ -1,12 +1,32 @@
 {
 	"info": {
-		"_postman_id": "4bcf1909-8996-44b7-be35-b130ab03d12f",
+		"_postman_id": "16494388-e108-4708-b068-2f6671167b17",
 		"name": "cloud-cdnd-c2-final",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
 		{
-			"name": "http://localhost:8082/filteredimage?image_url=https://timedotcom.files.wordpress.com/2019/03/kitten-report.jpg",
+			"name": "filteredImage invalid query param",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b08d545e-a52d-40aa-b241-8a0fa7c747ff",
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});",
+							"",
+							"pm.test(\"correct error message\", function () {",
+							"    const text = pm.response.text();",
+							"    pm.expect(text).to.eql('provided url does not contain image');",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "GET",
 				"header": [],
@@ -23,6 +43,84 @@
 						{
 							"key": "image_url",
 							"value": "https://timedotcom.files.wordpress.com/2019/03/kitten-report.jpg"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "filteredimage no query param",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c140c60f-bcc2-4037-b64f-2558a2a90d70",
+						"exec": [
+							"pm.test(\"Status code is 400\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{HOST}}/filteredimage",
+					"protocol": "http",
+					"host": [
+						"{{HOST}}"
+					],
+					"path": [
+						"filteredimage"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "filteredImage 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "104f9da9-fc7a-4cbb-9cbf-d0cfaba503c2",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Content-Type is image/jpeg\", function () {",
+							"    pm.response.to.have.header(\"Content-Type\");",
+							"    const contentType = pm.response.headers.get(\"Content-Type\");",
+							"    pm.expect(contentType).to.equal('image/jpeg');",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{HOST}}/filteredimage?image_url=https://icatcare.org/app/uploads/2018/07/Helping-your-new-cat-or-kitten-settle-in-1.png",
+					"protocol": "http",
+					"host": [
+						"{{HOST}}"
+					],
+					"path": [
+						"filteredimage"
+					],
+					"query": [
+						{
+							"key": "image_url",
+							"value": "https://icatcare.org/app/uploads/2018/07/Helping-your-new-cat-or-kitten-settle-in-1.png"
 						}
 					]
 				}
@@ -54,10 +152,11 @@
 	],
 	"variable": [
 		{
-			"id": "1df3d31a-de30-494b-a3d0-f1228dd8713c",
+			"id": "cfe10152-8b19-463a-b929-5c3cae9aec7c",
 			"key": "HOST",
 			"value": "localhost:8082",
 			"type": "string"
 		}
-	]
+	],
+	"protocolProfileBehavior": {}
 }
