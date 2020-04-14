@@ -47,7 +47,8 @@ import { filterImageFromURL, deleteLocalFiles } from './util/util';
     try {
       image_path = await filterImageFromURL(image_url);
     } catch (err) {
-      return res.status(400).send(err);
+      console.error(err);
+      return res.status(400).send('provided url does not contain image');
     }
 
     res.sendFile(image_path, function (err) {
