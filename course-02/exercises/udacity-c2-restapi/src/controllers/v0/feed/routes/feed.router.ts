@@ -16,8 +16,6 @@ router.get('/', async (req: Request, res: Response) => {
     res.send(items);
 });
 
-//@TODO
-//Add an endpoint to GET a specific resource by Primary Key
 router.get('/:id', async (req: Request, res: Response) => {
     const item = await FeedItem.findByPk(req.params.id);
     if (!item) {
@@ -31,7 +29,6 @@ router.get('/:id', async (req: Request, res: Response) => {
 router.patch('/:id',
     requireAuth,
     async (req: Request, res: Response) => {
-        //@TODO try it yourself
         let item = await FeedItem.findByPk(req.params.id);
         if (!item) {
             res.send(404).send('not such item');
