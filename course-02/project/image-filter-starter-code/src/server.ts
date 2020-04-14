@@ -1,4 +1,4 @@
-import express, { Router, Request, Response } from 'express';
+import express, { Router, Request, Response, NextFunction } from 'express';
 import bodyParser from 'body-parser';
 import { filterImageFromURL, deleteLocalFiles } from './util/util';
 
@@ -37,12 +37,28 @@ import { filterImageFromURL, deleteLocalFiles } from './util/util';
     res.send("try GET /filteredimage?image_url={{}}")
   });
 
-  app.get("/filteredimage", async (req: Request, res: Response) => {
+  app.get("/filteredimage", async (req: Request, res: Response, next: NextFunction) => {
     const { image_url } = req.query;
     if (!image_url) {
       return res.status(400).send('image url is required');
     }
-    res.send({ image_url });
+
+    let image_path = '';
+    try {
+      image_path = await filterImageFromURL(image_url);
+    } catch (err) {
+      return res.status(400).send(err);
+    }
+
+    res.sendFile(image_path, function (err) {
+      if (err) {
+        next(err);
+      } else {
+        console.log('Sent:', image_path);
+        deleteLocalFiles([image_path]);
+      }
+    })
+
   });
 
   // Start the Server
