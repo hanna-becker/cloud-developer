@@ -9,22 +9,49 @@ const groupsTable = process.env.GROUPS_TABLE
 exports.handler = async (event) => {
   console.log('Processing event: ', event)
 
-  // TODO: Read and parse "limit" and "nextKey" parameters from query parameters
-  // let nextKey // Next key to continue scan operation if necessary
-  // let limit // Maximum number of elements to return
+  // Next key to continue scan operation if necessary
+  let nextKeyString = getQueryParameter(event, 'nextKey');
+  // Maximum number of elements to return
+  let limit = getQueryParameter(event, 'limit');
 
-  // HINT: You might find the following method useful to get an incoming parameter value
-  // getQueryParameter(event, 'param')
+  if (limit && !parseInt(limit)) {
+    return {
+      statusCode: 400,
+      headers: {
+        'Access-Control-Allow-Origin': '*'
+      },
+      body: JSON.stringify({
+        message: 'limit parameter is not an integer',
+      })
+    }
+  }
 
-  // TODO: Return 400 error if parameters are invalid
+  let nextKey;
+  if (nextKeyString) {
+    try {
+      nextKey = JSON.parse(decodeURIComponent(nextKeyString))
+    } catch (err) {
+      return {
+        statusCode: 400,
+        headers: {
+          'Access-Control-Allow-Origin': '*'
+        },
+        body: JSON.stringify({
+          message: 'nextKey parameter is malformatted'
+        })
+      }
+    }
+  } else {
+    nextKey = null
+  }
 
   // Scan operation parameters
   const scanParams = {
     TableName: groupsTable,
-    // TODO: Set correct pagination parameters
-    // Limit: ???,
-    // ExclusiveStartKey: ???
-  }
+    Limit: limit,
+    ExclusiveStartKey: nextKey
+  };
+
   console.log('Scan params: ', scanParams)
 
   const result = await docClient.scan(scanParams).promise()
