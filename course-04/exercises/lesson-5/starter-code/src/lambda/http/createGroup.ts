@@ -1,35 +1,41 @@
-import { APIGatewayProxyHandler, APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda'
+import {APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult} from 'aws-lambda'
 import 'source-map-support/register'
-import * as AWS  from 'aws-sdk'
+import * as AWS from 'aws-sdk'
 import * as uuid from 'uuid'
+import {getUserId} from "../../auth/utils";
 
-const docClient = new AWS.DynamoDB.DocumentClient()
-const groupsTable = process.env.GROUPS_TABLE
+const docClient = new AWS.DynamoDB.DocumentClient();
+const groupsTable = process.env.GROUPS_TABLE;
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  console.log('Processing event: ', event)
-  const itemId = uuid.v4()
+    console.log('Processing event: ', event);
 
-  const parsedBody = JSON.parse(event.body)
+    const newItem = {
+        id: uuid.v4(),
+        userId: getUserIdFromEvent(event),
+        ...(JSON.parse(event.body))
+    };
 
-  const newItem = {
-    id: itemId,
-    ...parsedBody
-  }
+    await docClient.put({
+        TableName: groupsTable,
+        Item: newItem
+    }).promise();
 
-  await docClient.put({
-    TableName: groupsTable,
-    Item: newItem
-  }).promise()
+    return {
+        statusCode: 201,
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Credentials': true
+        },
+        body: JSON.stringify({
+            newItem
+        })
+    }
+};
 
-  return {
-    statusCode: 201,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Credentials': true
-    },
-    body: JSON.stringify({
-      newItem
-    })
-  }
-}
+const getUserIdFromEvent = (event: APIGatewayProxyEvent) => {
+    const authorization = event.headers.Authorization;
+    const split = authorization.split(' ');
+    const jwtToken = split[1];
+    return getUserId(jwtToken);
+};
