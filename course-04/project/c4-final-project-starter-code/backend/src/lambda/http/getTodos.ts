@@ -1,20 +1,13 @@
 import 'source-map-support/register'
-import * as AWS from 'aws-sdk'
-import {APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler} from 'aws-lambda'
+import {APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult} from 'aws-lambda'
+import {getAllTodoItems} from "../businessLogic/todoItems";
 
-const docClient = createDynamoDBClient();
-
-const todosTable = process.env.TODOS_TABLE;
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     // TODO: Get all TODO items for a current user
     console.log('Processing event: ', event);
 
-    const result = await docClient.scan({
-        TableName: todosTable
-    }).promise();
-
-    const items = result.Items;
+    const items = await getAllTodoItems();
 
     return {
         statusCode: 200,
@@ -27,14 +20,4 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     };
 };
 
-function createDynamoDBClient() {
-    if (process.env.IS_OFFLINE) {
-        console.log('Creating a local DynamoDB instance');
-        return new AWS.DynamoDB.DocumentClient({
-            region: 'localhost',
-            endpoint: 'http://localhost:8000'
-        })
-    }
 
-    return new AWS.DynamoDB.DocumentClient();
-}
