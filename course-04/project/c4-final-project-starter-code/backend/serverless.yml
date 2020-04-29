@@ -16,10 +16,10 @@ provider:
 
   environment:
     TODOS_TABLE: Todos-${self:provider.stage}
+#    IS_OFFLINE: true
 
 custom:
-  serverless-offline:
-    port: 3003
+
   dynamodb:
     start:
       port: 8000
@@ -27,6 +27,10 @@ custom:
       migrate: true
     stages:
       - dev
+
+  serverless-offline:
+    httpPort: 3003
+
 functions:
 
   Auth:
