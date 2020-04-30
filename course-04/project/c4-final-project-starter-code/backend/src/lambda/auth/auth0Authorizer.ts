@@ -73,12 +73,17 @@ function getToken(authHeader: string): string {
 async function getCertificate(token: string): Promise<string> {
     logger.info('Getting certificate');
     const jwt: Jwt = decode(token, {complete: true}) as Jwt;
-    const keyId = jwt.header.kid;
-    logger.info('Key id from JWT: ', keyId);
+    const keyId: string = jwt.header.kid;
     const response = await Axios.get(jwksUrl);
     const jwks = response.data;
-    logger.info('jwks: ', jwks);
-    const cert = jwks.keys.filter((obj) => obj.kid === keyId)[0].x5c;
-    logger.info('cert: ', cert);
-    return cert;
+    const signingKey = jwks.keys.find(key => key.kid === keyId);
+    const cert = signingKey.x5c[0];
+    return certToPEM(cert);
+}
+
+// Source: https://github.com/sgmeyer/auth0-node-jwks-rs256/blob/master/src/lib/utils.js
+function certToPEM(cert) {
+    let pem = cert.match(/.{1,64}/g).join('\n');
+    pem = `-----BEGIN CERTIFICATE-----\n${pem}\n-----END CERTIFICATE-----\n`;
+    return pem;
 }
