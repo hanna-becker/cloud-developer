@@ -44,7 +44,7 @@ functions:
           method: get
           path: todos
           cors: true
-#          authorizer: Auth
+          authorizer: Auth
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -58,6 +58,8 @@ functions:
       - http:
           method: post
           path: todos
+          cors: true
+          authorizer: Auth
 
   # TODO: Configure this function
   UpdateTodo:
@@ -66,14 +68,18 @@ functions:
       - http:
           method: patch
           path: todos/{todoId}
+          cors: true
+          authorizer: Auth
 
-  # TODO: Configure this function
+  # TODO: Configure this function, delete dynamodb role?
   DeleteTodo:
     handler: src/lambda/http/deleteTodo.handler
     events:
       - http:
           method: delete
           path: todos/{todoId}
+          cors: true
+          authorizer: Auth
 
   # TODO: Configure this function
   GenerateUploadUrl:

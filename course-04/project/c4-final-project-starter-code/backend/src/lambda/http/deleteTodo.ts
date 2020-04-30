@@ -1,10 +1,36 @@
 import 'source-map-support/register'
 
-import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } from 'aws-lambda'
+import {APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult} from 'aws-lambda'
+import {deleteTodoItem} from "../businessLogic/todoItems";
+import {createLogger} from "../../utils/logger";
+
+
+const logger = createLogger('deleteTodo');
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
-  const todoId = event.pathParameters.todoId;
+    logger.info('event: ', event);
 
-  // TODO: Remove a TODO item by id
-  return undefined
+    const todoId = event.pathParameters.todoId;
+
+    const {message, success} = await deleteTodoItem(todoId);
+
+    if (success) {
+        return {
+            statusCode: 204,
+            headers: {
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Credentials': true
+            },
+            body: `Successfully deleted todo item with id ${todoId}`
+        }
+    }
+
+    return {
+        statusCode: 404,
+        headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Credentials': true
+        },
+        body: message
+    }
 };

@@ -20,3 +20,7 @@ export async function createTodoItem(createTodoItemRequest: CreateTodoRequest, u
         done: false
     })
 }
+
+export async function deleteTodoItem(todoId: string): Promise<{ message: string; success: boolean; }> {
+    return await todoItemAccess.deleteTodoItem(todoId);
+}

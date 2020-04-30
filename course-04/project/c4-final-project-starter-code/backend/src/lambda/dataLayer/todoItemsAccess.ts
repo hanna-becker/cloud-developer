@@ -3,6 +3,7 @@ import * as AWS from 'aws-sdk'
 import {DocumentClient} from 'aws-sdk/clients/dynamodb'
 import {TodoItem} from "../../models/TodoItem";
 
+// TODO: use x-ray
 // const XAWS = AWSXRay.captureAWS(AWS);
 
 export class TodoItemsAccess {
@@ -31,6 +32,25 @@ export class TodoItemsAccess {
 
         return todoItem;
     }
+
+    async deleteTodoItem(todoId: string): Promise<{ message: string; success: boolean; }> {
+        try {
+            await this.docClient.delete({
+                TableName: this.todoItemsTable,
+                Key: {"todoId": todoId}
+            }).promise();
+            return {
+                message: `Successfully deleted todo item with id ${todoId}`,
+                success: true
+            };
+        } catch (e) {
+            return {
+                message: JSON.stringify(e),
+                success: false
+            };
+        }
+    }
+
 }
 
 function createDynamoDBClient() {
