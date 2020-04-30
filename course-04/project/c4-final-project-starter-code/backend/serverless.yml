@@ -8,6 +8,11 @@ plugins:
   - serverless-offline
 
 provider:
+
+  #  tracing:
+  #    lambda: true
+  #    apiGateway: true
+
   name: aws
   runtime: nodejs12.x
 
@@ -20,16 +25,17 @@ provider:
 
 custom:
 
-  dynamodb:
-    start:
-      port: 8000
-      inMemory: true
-      migrate: true
-    stages:
-      - dev
-
-  serverless-offline:
-    httpPort: 3003
+# TODO: uncomment for local execution
+#  dynamodb:
+#    start:
+#      port: 8000
+#      inMemory: true
+#      migrate: true
+#    stages:
+#      - dev
+#
+#  serverless-offline:
+#    httpPort: 3003
 
 functions:
 
@@ -51,7 +57,6 @@ functions:
           - dynamodb:Scan
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
 
-  # TODO: Configure this function
   CreateTodo:
     handler: src/lambda/http/createTodo.handler
     events:
@@ -60,8 +65,12 @@ functions:
           path: todos
           cors: true
           authorizer: Auth
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:PutItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
 
-  # TODO: Configure this function
   UpdateTodo:
     handler: src/lambda/http/updateTodo.handler
     events:
@@ -70,8 +79,12 @@ functions:
           path: todos/{todoId}
           cors: true
           authorizer: Auth
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:UpdateItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
 
-  # TODO: Configure this function, delete dynamodb role?
   DeleteTodo:
     handler: src/lambda/http/deleteTodo.handler
     events:
@@ -80,6 +93,11 @@ functions:
           path: todos/{todoId}
           cors: true
           authorizer: Auth
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:DeleteItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
 
   # TODO: Configure this function
   GenerateUploadUrl:
