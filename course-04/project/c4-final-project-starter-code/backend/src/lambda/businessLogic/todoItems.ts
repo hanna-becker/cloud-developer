@@ -2,6 +2,7 @@ import * as uuid from 'uuid'
 import {TodoItem} from "../../models/TodoItem";
 import {TodoItemsAccess} from "../dataLayer/todoItemsAccess";
 import {CreateTodoRequest} from "../../requests/CreateTodoRequest";
+import {UpdateTodoRequest} from "../../requests/UpdateTodoRequest";
 
 
 const todoItemAccess = new TodoItemsAccess();
@@ -19,6 +20,10 @@ export async function createTodoItem(createTodoItemRequest: CreateTodoRequest, u
         dueDate: createTodoItemRequest.dueDate,
         done: false
     })
+}
+
+export async function updateTodoItem(todoId: string, updateTodoRequest: UpdateTodoRequest): Promise<{ message: string; success: boolean; }> {
+    return await todoItemAccess.updateTodoItem(todoId, updateTodoRequest);
 }
 
 export async function deleteTodoItem(todoId: string): Promise<{ message: string; success: boolean; }> {

@@ -2,6 +2,7 @@ import * as AWS from 'aws-sdk'
 // import * as AWSXRay from 'aws-xray-sdk'
 import {DocumentClient} from 'aws-sdk/clients/dynamodb'
 import {TodoItem} from "../../models/TodoItem";
+import {UpdateTodoRequest} from "../../requests/UpdateTodoRequest";
 
 // TODO: use x-ray
 // const XAWS = AWSXRay.captureAWS(AWS);
@@ -31,6 +32,35 @@ export class TodoItemsAccess {
         }).promise();
 
         return todoItem;
+    }
+
+    async updateTodoItem(todoId: string, updateTodoRequest: UpdateTodoRequest): Promise<{ message: string; success: boolean; }> {
+        try {
+            const {name, dueDate, done} = updateTodoRequest;
+            await this.docClient.update({
+                TableName: this.todoItemsTable,
+                Key: {"todoId": todoId},
+                UpdateExpression: "set #nm=:n, dueDate=:dd, done=:do",
+                ExpressionAttributeNames: {
+                    "#nm": "name"
+                },
+                ExpressionAttributeValues: {
+                    ":n": name,
+                    ":dd": dueDate,
+                    ":do": done
+                },
+                ReturnValues: "UPDATED_NEW"
+            }).promise();
+            return {
+                message: `Successfully deleted todo item with id ${todoId}`,
+                success: true
+            };
+        } catch (e) {
+            return {
+                message: JSON.stringify(e),
+                success: false
+            };
+        }
     }
 
     async deleteTodoItem(todoId: string): Promise<{ message: string; success: boolean; }> {
