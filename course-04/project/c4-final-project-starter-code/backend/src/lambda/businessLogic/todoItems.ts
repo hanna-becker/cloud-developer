@@ -22,10 +22,29 @@ export async function createTodoItem(createTodoItemRequest: CreateTodoRequest, u
     })
 }
 
-export async function updateTodoItem(todoId: string, updateTodoRequest: UpdateTodoRequest): Promise<{ message: string; success: boolean; }> {
-    return await todoItemAccess.updateTodoItem(todoId, updateTodoRequest);
+export async function updateTodoItem(todoId: string, userId: string, updateTodoRequest: UpdateTodoRequest): Promise<{ message: string; success: boolean; }> {
+    const correctUserId: boolean = await verifyUserId(todoId, userId);
+    if (correctUserId) {
+        return await todoItemAccess.updateTodoItem(todoId, updateTodoRequest);
+    }
+    return {
+        success: false,
+        message: 'Permission denied - TodoItem was created by a different user'
+    };
 }
 
-export async function deleteTodoItem(todoId: string): Promise<{ message: string; success: boolean; }> {
-    return await todoItemAccess.deleteTodoItem(todoId);
+export async function deleteTodoItem(todoId: string, userId: string): Promise<{ message: string; success: boolean; }> {
+    const correctUserId: boolean = await verifyUserId(todoId, userId);
+    if (correctUserId) {
+        return await todoItemAccess.deleteTodoItem(todoId);
+    }
+    return {
+        success: false,
+        message: 'Permission denied - TodoItem was created by a different user'
+    };
+}
+
+async function verifyUserId(todoId: string, userId: string): Promise<boolean> {
+    const todoItem: TodoItem = await todoItemAccess.getTodoItemById(todoId);
+    return todoItem.userId === userId;
 }

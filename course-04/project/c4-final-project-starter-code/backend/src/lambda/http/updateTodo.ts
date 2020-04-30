@@ -3,6 +3,7 @@ import {APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult} fro
 import {UpdateTodoRequest} from '../../requests/UpdateTodoRequest'
 import {updateTodoItem} from "../businessLogic/todoItems";
 import {createLogger} from "../../utils/logger";
+import {getUserId} from "../utils";
 
 
 const logger = createLogger('updateTodo');
@@ -11,6 +12,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     logger.info('event: ', event);
 
     const todoId: string = event.pathParameters.todoId;
+    const userId: string = getUserId(event);
     const updatedTodo: UpdateTodoRequest = JSON.parse(event.body);
 
     if (!todoId) {
@@ -24,7 +26,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
         }
     }
 
-    const {message, success} = await updateTodoItem(todoId, updatedTodo);
+    const {message, success} = await updateTodoItem(todoId, userId, updatedTodo);
 
     if (success) {
         return {
@@ -38,7 +40,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     }
 
     return {
-        statusCode: 404,
+        statusCode: 400,
         headers: {
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Credentials': true
