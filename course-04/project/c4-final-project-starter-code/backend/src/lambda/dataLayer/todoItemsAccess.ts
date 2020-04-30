@@ -14,26 +14,16 @@ export class TodoItemsAccess {
         private readonly todoItemsTable = process.env.TODOS_TABLE) {
     }
 
-    async getAllTodoItems(): Promise<TodoItem[]> {
-        console.log('Getting all TODO items');
-
-        const result = await this.docClient.scan({
-            TableName: this.todoItemsTable
-        }).promise();
-
-        const items = result.Items;
-        return items as TodoItem[];
-    }
-
-    async getTodoItemById(todoId: string): Promise<TodoItem> {
-        console.log(`Getting TODO item with todoId ${todoId}`);
-
-        const result = await this.docClient.get({
+    async getTodoItemsByUser(userId: string): Promise<TodoItem[]> {
+        const result = await this.docClient.query({
             TableName: this.todoItemsTable,
-            Key: {"todoId": todoId}
+            KeyConditionExpression: 'userId = :userId',
+            ExpressionAttributeValues: {
+                ':userId': userId
+            }
         }).promise();
 
-        return result.Item as TodoItem;
+        return result.Items as TodoItem[];
     }
 
     async createTodoItem(todoItem: TodoItem): Promise<TodoItem> {
@@ -42,15 +32,15 @@ export class TodoItemsAccess {
             Item: todoItem
         }).promise();
 
-        return todoItem;
+        return todoItem as TodoItem;
     }
 
-    async updateTodoItem(todoId: string, updateTodoRequest: UpdateTodoRequest): Promise<{ message: string; success: boolean; }> {
+    async updateTodoItem(userId: string, todoId: string, updateTodoRequest: UpdateTodoRequest): Promise<{ message: string; success: boolean; }> {
         try {
             const {name, dueDate, done} = updateTodoRequest;
             await this.docClient.update({
                 TableName: this.todoItemsTable,
-                Key: {"todoId": todoId},
+                Key: {userId, todoId},
                 UpdateExpression: "set #nm=:n, dueDate=:dd, done=:do",
                 ExpressionAttributeNames: {
                     "#nm": "name"
@@ -74,11 +64,11 @@ export class TodoItemsAccess {
         }
     }
 
-    async deleteTodoItem(todoId: string): Promise<{ message: string; success: boolean; }> {
+    async deleteTodoItem(userId: string, todoId: string): Promise<{ message: string; success: boolean; }> {
         try {
             await this.docClient.delete({
                 TableName: this.todoItemsTable,
-                Key: {"todoId": todoId}
+                Key: {userId, todoId},
             }).promise();
             return {
                 message: `Successfully deleted todo item with id ${todoId}`,
