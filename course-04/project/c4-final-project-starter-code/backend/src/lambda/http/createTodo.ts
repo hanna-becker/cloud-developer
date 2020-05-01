@@ -13,8 +13,7 @@ const logger = createLogger('createTodos');
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     const newTodo: CreateTodoRequest = JSON.parse(event.body);
     logger.info('event: ', event);
-    // TODO: remove fake user id
-    const userId = getUserId(event) || '123';
+    const userId = getUserId(event);
 
     const todoItem: TodoItem = await createTodoItem(newTodo, userId);
 
