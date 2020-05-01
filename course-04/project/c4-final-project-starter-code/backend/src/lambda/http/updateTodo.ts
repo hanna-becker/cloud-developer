@@ -26,7 +26,6 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
         }
     }
 
-    // TODO: fix this and test it fails for non-existing todoId
     const {message, success} = await updateTodoItem(userId, todoId, updatedTodo);
 
     if (success) {

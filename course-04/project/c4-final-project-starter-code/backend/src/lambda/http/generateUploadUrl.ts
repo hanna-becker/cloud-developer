@@ -19,15 +19,13 @@ const s3 = new AWS.S3({
 
 export const handler = middy(async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     logger.info('event: ', event);
+
     const todoId = event.pathParameters.todoId;
     const userId: string = getUserId(event);
-    // TODO: Return a presigned URL to upload a file for a TODO item with the provided id
 
-    // TODO: check that todo item exists
+    const isTodoIdValid = await todoItemExists(userId, todoId);
 
-    const validTodoId = await todoItemExists(userId, todoId);
-
-    if (!validTodoId) {
+    if (!isTodoIdValid) {
         return {
             statusCode: 404,
             body: JSON.stringify({

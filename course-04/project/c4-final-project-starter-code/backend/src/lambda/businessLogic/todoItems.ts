@@ -23,7 +23,11 @@ export async function createTodoItem(createTodoItemRequest: CreateTodoRequest, u
 }
 
 export async function updateTodoItem(userId: string, todoId: string, updateTodoRequest: UpdateTodoRequest): Promise<{ message: string; success: boolean; }> {
-    return await todoItemAccess.updateTodoItem(userId, todoId, updateTodoRequest);
+    const todoItemExists: boolean = await todoItemAccess.todoItemExists(userId, todoId);
+    if (todoItemExists) {
+        return await todoItemAccess.updateTodoItem(userId, todoId, updateTodoRequest);
+    }
+    return {message: `TodoItem with todoId ${todoId} does not exist`, success: false}
 }
 
 export async function deleteTodoItem(userId: string, todoId: string): Promise<{ message: string; success: boolean; }> {
