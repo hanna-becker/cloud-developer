@@ -1,10 +1,10 @@
 import 'source-map-support/register'
-
-import {APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult} from 'aws-lambda'
+import {APIGatewayProxyEvent, APIGatewayProxyResult} from 'aws-lambda'
 import {createLogger} from "../../utils/logger";
 import * as AWS from 'aws-sdk'
-
 import * as uuid from 'uuid'
+import * as middy from 'middy'
+import {cors} from 'middy/middlewares'
 
 const logger = createLogger('generateUploadUrl');
 
@@ -15,7 +15,7 @@ const s3 = new AWS.S3({
     signatureVersion: 'v4'
 });
 
-export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const handler = middy(async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     logger.info('event: ', event);
     const todoId = event.pathParameters.todoId;
     // TODO: Return a presigned URL to upload a file for a TODO item with the provided id
@@ -23,10 +23,10 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     logger.info('todoId: ', todoId);
 
     const imageId = uuid.v4();
-    const url = getUploadUrl(imageId);
-    logger.info('url: ', url);
+    const uploadUrl = getUploadUrl(imageId);
+    logger.info('uploadUrl: ', uploadUrl);
 
-    // TODO: save image url in db todo item
+    // TODO: save image uploadUrl in db todo item
 
     return {
         statusCode: 200,
@@ -34,11 +34,18 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
             'Access-Control-Allow-Origin': '*'
         },
         body: JSON.stringify({
-            url
+            uploadUrl
         })
     };
 
-};
+});
+
+// TODO: Do we need this?
+handler.use(
+    cors({
+        credentials: true
+    })
+);
 
 // TODO: separate business logic from lambda layer
 function getUploadUrl(imageId: string) {
