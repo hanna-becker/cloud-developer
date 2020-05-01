@@ -5,7 +5,7 @@ import * as AWS from 'aws-sdk'
 import * as uuid from 'uuid'
 import * as middy from 'middy'
 import {cors} from 'middy/middlewares'
-import {todoItemExists} from "../businessLogic/todoItems";
+import {storeAttachmentUrlInDb, todoItemExists} from "../businessLogic/todoItems";
 import {getUserId} from "../utils";
 
 const logger = createLogger('generateUploadUrl');
@@ -37,10 +37,23 @@ export const handler = middy(async (event: APIGatewayProxyEvent): Promise<APIGat
     }
 
     const imageId = uuid.v4();
-    const uploadUrl = getUploadUrl(imageId);
-    logger.info('uploadUrl: ', uploadUrl);
+    const imageUrl = `https://${bucketName}.s3.amazonaws.com/${imageId}`;
 
-    // TODO: save image uploadUrl in db todo item
+    const {message, success} = await storeAttachmentUrlInDb(userId, todoId, imageUrl);
+
+    if (!success) {
+        return {
+            statusCode: 400,
+            headers: {
+                'Access-Control-Allow-Origin': '*'
+            },
+            body: JSON.stringify({
+                message
+            })
+        };
+    }
+
+    const uploadUrl = getUploadUrl(imageId);
 
     return {
         statusCode: 200,

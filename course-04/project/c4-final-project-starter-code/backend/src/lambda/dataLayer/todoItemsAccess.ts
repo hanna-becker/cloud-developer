@@ -53,7 +53,7 @@ export class TodoItemsAccess {
                 ReturnValues: "UPDATED_NEW"
             }).promise();
             return {
-                message: `Successfully deleted todo item with id ${todoId}`,
+                message: `Successfully updated todo item with id ${todoId}`,
                 success: true
             };
         } catch (e) {
@@ -90,6 +90,28 @@ export class TodoItemsAccess {
         return !!result.Item;
     }
 
+    async storeAttachmentUrlInDb(userId: string, todoId: string, attachmentUrl: string): Promise<{ message: string; success: boolean; }> {
+        try {
+            await this.docClient.update({
+                TableName: this.todoItemsTable,
+                Key: {userId, todoId},
+                UpdateExpression: "set attachmentUrl=:a",
+                ExpressionAttributeValues: {
+                    ":a": attachmentUrl
+                },
+                ReturnValues: "UPDATED_NEW"
+            }).promise();
+            return {
+                message: `Successfully stored attachmentUrl in todo item with id ${todoId}`,
+                success: true
+            };
+        } catch (e) {
+            return {
+                message: JSON.stringify(e),
+                success: false
+            };
+        }
+    }
 }
 
 function createDynamoDBClient() {

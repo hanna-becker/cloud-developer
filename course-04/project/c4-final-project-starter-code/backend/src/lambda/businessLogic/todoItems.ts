@@ -33,3 +33,7 @@ export async function deleteTodoItem(userId: string, todoId: string): Promise<{ 
 export async function todoItemExists(userId: string, todoId: string): Promise<boolean> {
     return await todoItemAccess.todoItemExists(userId, todoId);
 }
+
+export async function storeAttachmentUrlInDb(userId, todoId, imageUrl): Promise<{ message: string; success: boolean; }> {
+    return await todoItemAccess.storeAttachmentUrlInDb(userId, todoId, imageUrl);
+}

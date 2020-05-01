@@ -16,6 +16,8 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
 
     const {message, success} = await deleteTodoItem(userId, todoId);
 
+    // TODO: delete attachment in S3 bucket
+
     if (success) {
         return {
             statusCode: 204,
