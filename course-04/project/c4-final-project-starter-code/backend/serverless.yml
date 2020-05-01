@@ -1,5 +1,5 @@
 service:
-  name: serverless-todo-app
+  name: todo-app
 
 plugins:
   - serverless-webpack
@@ -114,7 +114,6 @@ functions:
           - dynamodb:DeleteItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
 
-  # TODO: Configure this function, dynamodb put item?
   GenerateUploadUrl:
     handler: src/lambda/http/generateUploadUrl.handler
     events:
@@ -123,6 +122,16 @@ functions:
           path: todos/{todoId}/attachment
           cors: true
           authorizer: Auth
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:UpdateItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+      - Effect: Allow
+        Action:
+          - s3:PutObject
+        Resource: arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*
 
 resources:
   Resources:
@@ -165,11 +174,11 @@ resources:
               AllowedHeaders:
                 - '*'
               AllowedMethods:
-#                - GET
+                #                - GET
                 - PUT
-#                - POST
-#                - DELETE
-#                - HEAD
+              #                - POST
+              #                - DELETE
+              #                - HEAD
               MaxAge: 3000
 
     BucketPolicy:

@@ -5,6 +5,8 @@ import * as AWS from 'aws-sdk'
 import * as uuid from 'uuid'
 import * as middy from 'middy'
 import {cors} from 'middy/middlewares'
+import {todoItemExists} from "../businessLogic/todoItems";
+import {getUserId} from "../utils";
 
 const logger = createLogger('generateUploadUrl');
 
@@ -18,9 +20,21 @@ const s3 = new AWS.S3({
 export const handler = middy(async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     logger.info('event: ', event);
     const todoId = event.pathParameters.todoId;
+    const userId: string = getUserId(event);
     // TODO: Return a presigned URL to upload a file for a TODO item with the provided id
+
     // TODO: check that todo item exists
-    logger.info('todoId: ', todoId);
+
+    const validTodoId = await todoItemExists(userId, todoId);
+
+    if (!validTodoId) {
+        return {
+            statusCode: 404,
+            body: JSON.stringify({
+                error: 'Todo item does not exist'
+            })
+        }
+    }
 
     const imageId = uuid.v4();
     const uploadUrl = getUploadUrl(imageId);

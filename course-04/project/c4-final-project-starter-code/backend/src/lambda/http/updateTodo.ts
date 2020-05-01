@@ -26,7 +26,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
         }
     }
 
-    const {message, success} = await updateTodoItem(todoId, userId, updatedTodo);
+    const {message, success} = await updateTodoItem(userId, todoId, updatedTodo);
 
     if (success) {
         return {

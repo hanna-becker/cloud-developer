@@ -14,7 +14,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     const todoId = event.pathParameters.todoId;
     const userId: string = getUserId(event);
 
-    const {message, success} = await deleteTodoItem(todoId, userId);
+    const {message, success} = await deleteTodoItem(userId, todoId);
 
     if (success) {
         return {

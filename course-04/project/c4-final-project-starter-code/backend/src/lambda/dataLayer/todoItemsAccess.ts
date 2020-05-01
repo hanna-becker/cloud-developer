@@ -82,6 +82,14 @@ export class TodoItemsAccess {
         }
     }
 
+    async todoItemExists(userId: string, todoId: string): Promise<boolean> {
+        const result = await this.docClient.get({
+            TableName: this.todoItemsTable,
+            Key: {userId, todoId},
+        }).promise();
+        return !!result.Item;
+    }
+
 }
 
 function createDynamoDBClient() {

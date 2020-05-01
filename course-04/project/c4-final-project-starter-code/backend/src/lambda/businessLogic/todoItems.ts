@@ -22,10 +22,14 @@ export async function createTodoItem(createTodoItemRequest: CreateTodoRequest, u
     })
 }
 
-export async function updateTodoItem(todoId: string, userId: string, updateTodoRequest: UpdateTodoRequest): Promise<{ message: string; success: boolean; }> {
+export async function updateTodoItem(userId: string, todoId: string, updateTodoRequest: UpdateTodoRequest): Promise<{ message: string; success: boolean; }> {
     return await todoItemAccess.updateTodoItem(userId, todoId, updateTodoRequest);
 }
 
-export async function deleteTodoItem(todoId: string, userId: string): Promise<{ message: string; success: boolean; }> {
+export async function deleteTodoItem(userId: string, todoId: string): Promise<{ message: string; success: boolean; }> {
     return await todoItemAccess.deleteTodoItem(userId, todoId);
+}
+
+export async function todoItemExists(userId: string, todoId: string): Promise<boolean> {
+    return await todoItemAccess.todoItemExists(userId, todoId);
 }
