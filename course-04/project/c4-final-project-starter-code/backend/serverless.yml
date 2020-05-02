@@ -29,13 +29,6 @@ provider:
     SIGNED_URL_EXPIRATION: 300
   #    IS_OFFLINE: true
 
-  # TODO: attach to a specific lambda function
-  iamRoleStatements:
-    - Effect: Allow
-      Action:
-        - s3:PutObject
-      Resource: arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*
-
 custom:
 # TODO: uncomment for local execution
 #  dynamodb:
@@ -112,8 +105,13 @@ functions:
     iamRoleStatements:
       - Effect: Allow
         Action:
+          - dynamodb:GetItem
           - dynamodb:DeleteItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+      - Effect: Allow
+        Action:
+          - s3:DeleteObject
+        Resource: arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*
 
   GenerateUploadUrl:
     handler: src/lambda/http/generateUploadUrl.handler

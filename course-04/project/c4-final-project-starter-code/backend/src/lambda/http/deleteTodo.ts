@@ -1,7 +1,7 @@
 import 'source-map-support/register'
 
 import {APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult} from 'aws-lambda'
-import {deleteTodoItem} from "../businessLogic/todoItems";
+import {deleteTodoItemAndAttachment} from "../businessLogic/todoItems";
 import {createLogger} from "../../utils/logger";
 import {getUserId} from "../utils";
 
@@ -14,9 +14,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
     const todoId = event.pathParameters.todoId;
     const userId: string = getUserId(event);
 
-    const {message, success} = await deleteTodoItem(userId, todoId);
-
-    // TODO: delete attachment in S3 bucket
+    const {message, success} = await deleteTodoItemAndAttachment(userId, todoId);
 
     if (success) {
         return {

@@ -1,21 +1,17 @@
 import 'source-map-support/register'
 import {APIGatewayProxyEvent, APIGatewayProxyResult} from 'aws-lambda'
 import {createLogger} from "../../utils/logger";
-import * as AWS from 'aws-sdk'
 import * as uuid from 'uuid'
 import * as middy from 'middy'
 import {cors} from 'middy/middlewares'
-import {storeAttachmentUrlInDb, todoItemExists} from "../businessLogic/todoItems";
+import {getUploadUrl, storeAttachmentUrlInDb, todoItemExists} from "../businessLogic/todoItems";
 import {getUserId} from "../utils";
 
 const logger = createLogger('generateUploadUrl');
 
+// TODO: separate business/access logic from lambda layer
 const bucketName = process.env.IMAGES_S3_BUCKET;
-const urlExpiration = process.env.SIGNED_URL_EXPIRATION;
 
-const s3 = new AWS.S3({
-    signatureVersion: 'v4'
-});
 
 export const handler = middy(async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     logger.info('event: ', event);
@@ -34,10 +30,10 @@ export const handler = middy(async (event: APIGatewayProxyEvent): Promise<APIGat
         }
     }
 
-    const imageId = uuid.v4();
-    const imageUrl = `https://${bucketName}.s3.amazonaws.com/${imageId}`;
+    const attachmentId = uuid.v4();
+    const attachmentUrl = `https://${bucketName}.s3.amazonaws.com/${attachmentId}`;
 
-    const {message, success} = await storeAttachmentUrlInDb(userId, todoId, imageUrl);
+    const {message, success} = await storeAttachmentUrlInDb(userId, todoId, attachmentUrl);
 
     if (!success) {
         return {
@@ -51,7 +47,7 @@ export const handler = middy(async (event: APIGatewayProxyEvent): Promise<APIGat
         };
     }
 
-    const uploadUrl = getUploadUrl(imageId);
+    const uploadUrl = getUploadUrl(attachmentId);
 
     return {
         statusCode: 200,
@@ -71,12 +67,3 @@ handler.use(
         credentials: true
     })
 );
-
-// TODO: separate business logic from lambda layer
-function getUploadUrl(imageId: string) {
-    return s3.getSignedUrl('putObject', {
-        Bucket: bucketName,
-        Key: imageId,
-        Expires: parseInt(urlExpiration)
-    })
-}

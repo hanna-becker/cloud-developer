@@ -1,7 +1,7 @@
 import 'source-map-support/register'
 import {APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult} from 'aws-lambda'
 import {UpdateTodoRequest} from '../../requests/UpdateTodoRequest'
-import {updateTodoItem} from "../businessLogic/todoItems";
+import {updateTodoItemIfExists} from "../businessLogic/todoItems";
 import {createLogger} from "../../utils/logger";
 import {getUserId} from "../utils";
 
@@ -26,7 +26,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
         }
     }
 
-    const {message, success} = await updateTodoItem(userId, todoId, updatedTodo);
+    const {message, success} = await updateTodoItemIfExists(userId, todoId, updatedTodo);
 
     if (success) {
         return {
