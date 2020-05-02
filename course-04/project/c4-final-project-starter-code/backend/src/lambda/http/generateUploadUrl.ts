@@ -16,7 +16,7 @@ const bucketName = process.env.IMAGES_S3_BUCKET;
 export const handler = middy(async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     logger.info('event: ', event);
 
-    const todoId = event.pathParameters.todoId;
+    const todoId: string = event.pathParameters.todoId;
     const userId: string = getUserId(event);
 
     const isTodoIdValid = await todoItemExists(userId, todoId);

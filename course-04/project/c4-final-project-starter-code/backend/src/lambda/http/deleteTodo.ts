@@ -11,7 +11,7 @@ const logger = createLogger('deleteTodo');
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     logger.info('event: ', event);
 
-    const todoId = event.pathParameters.todoId;
+    const todoId: string = event.pathParameters.todoId;
     const userId: string = getUserId(event);
 
     const {message, success} = await deleteTodoItemAndAttachment(userId, todoId);

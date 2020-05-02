@@ -3,6 +3,7 @@ import {APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult} fro
 import {getTodoItemsByUser} from "../businessLogic/todoItems";
 import {createLogger} from "../../utils/logger";
 import {getUserId} from "../utils";
+import {TodoItem} from "../../models/TodoItem";
 
 const logger = createLogger('getTodos');
 
@@ -11,7 +12,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
 
     const userId: string = getUserId(event);
 
-    const items = await getTodoItemsByUser(userId);
+    const items: TodoItem[] = await getTodoItemsByUser(userId);
 
     return {
         statusCode: 200,
