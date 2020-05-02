@@ -24,9 +24,14 @@ export async function createTodoItem(createTodoItemRequest: CreateTodoRequest, u
     })
 }
 
+async function todoItemExists(userId: string, todoId: string): Promise<boolean> {
+    const item = await todoItemAccess.getTodoItem(userId, todoId);
+    return !!item;
+}
+
 export async function updateTodoItemIfExists(userId: string, todoId: string, updateTodoRequest: UpdateTodoRequest): Promise<{ message: string; success: boolean; }> {
-    const todoItemExists: boolean = await todoItemAccess.todoItemExists(userId, todoId);
-    if (todoItemExists) {
+    const exists: boolean = await todoItemExists(userId, todoId);
+    if (exists) {
         return await todoItemAccess.updateTodoItem(userId, todoId, updateTodoRequest);
     }
     return {message: `TodoItem with todoId ${todoId} does not exist`, success: false}
@@ -45,12 +50,14 @@ export async function deleteTodoItemAndAttachment(userId: string, todoId: string
     return await todoItemAccess.deleteTodoItem(userId, todoId);
 }
 
-export async function todoItemExists(userId: string, todoId: string): Promise<boolean> {
-    return await todoItemAccess.todoItemExists(userId, todoId);
-}
 
-export async function storeAttachmentUrlInDb(userId, todoId, attachmentUrl): Promise<{ message: string; success: boolean; }> {
-    return await todoItemAccess.storeAttachmentUrlInDb(userId, todoId, attachmentUrl);
+export async function addAttachmentUrlToTodoItemIfExists(userId, todoId, attachmentUrl): Promise<{ message: string; success: boolean; }> {
+    const exists: boolean = await todoItemExists(userId, todoId);
+    if (exists) {
+        return await todoItemAccess.storeAttachmentUrlInDb(userId, todoId, attachmentUrl);
+    }
+    return {message: 'Todo item does not exist', success: false}
+
 }
 
 export function getUploadUrl(attachmentId: string) {

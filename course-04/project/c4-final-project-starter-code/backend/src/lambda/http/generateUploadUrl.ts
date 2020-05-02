@@ -4,7 +4,7 @@ import {createLogger} from "../../utils/logger";
 import * as uuid from 'uuid'
 import * as middy from 'middy'
 import {cors} from 'middy/middlewares'
-import {getUploadUrl, storeAttachmentUrlInDb, todoItemExists} from "../businessLogic/todoItems";
+import {getUploadUrl, addAttachmentUrlToTodoItemIfExists} from "../businessLogic/todoItems";
 import {getUserId} from "../utils";
 
 const logger = createLogger('generateUploadUrl');
@@ -18,22 +18,10 @@ export const handler = middy(async (event: APIGatewayProxyEvent): Promise<APIGat
 
     const todoId: string = event.pathParameters.todoId;
     const userId: string = getUserId(event);
-
-    const isTodoIdValid = await todoItemExists(userId, todoId);
-
-    if (!isTodoIdValid) {
-        return {
-            statusCode: 404,
-            body: JSON.stringify({
-                error: 'Todo item does not exist'
-            })
-        }
-    }
-
-    const attachmentId = uuid.v4();
+    const attachmentId: string = uuid.v4();
     const attachmentUrl = `https://${bucketName}.s3.amazonaws.com/${attachmentId}`;
 
-    const {message, success} = await storeAttachmentUrlInDb(userId, todoId, attachmentUrl);
+    const {message, success} = await addAttachmentUrlToTodoItemIfExists(userId, todoId, attachmentUrl);
 
     if (!success) {
         return {

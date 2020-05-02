@@ -82,15 +82,6 @@ export class TodoItemsAccess {
         }
     }
 
-    // TODO: move to business logic layer
-    async todoItemExists(userId: string, todoId: string): Promise<boolean> {
-        const result = await this.docClient.get({
-            TableName: this.todoItemsTable,
-            Key: {userId, todoId},
-        }).promise();
-        return !!result.Item;
-    }
-
     async getTodoItem(userId: string, todoId: string): Promise<TodoItem> {
         const result = await this.docClient.get({
             TableName: this.todoItemsTable,
