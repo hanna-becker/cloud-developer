@@ -2,18 +2,15 @@ import 'source-map-support/register'
 import {APIGatewayProxyEvent, APIGatewayProxyResult} from 'aws-lambda'
 import {createLogger} from "../../utils/logger";
 import * as uuid from 'uuid'
-import * as middy from 'middy'
-import {cors} from 'middy/middlewares'
-import {getUploadUrl, addAttachmentUrlToTodoItemIfExists} from "../businessLogic/todoItems";
+import {addAttachmentUrlToTodoItemIfExists, getUploadUrl} from "../businessLogic/todoItems";
 import {getUserId} from "../utils";
 
 const logger = createLogger('generateUploadUrl');
 
-// TODO: separate business/access logic from lambda layer
 const bucketName = process.env.IMAGES_S3_BUCKET;
 
 
-export const handler = middy(async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     logger.info('event: ', event);
 
     const todoId: string = event.pathParameters.todoId;
@@ -47,11 +44,4 @@ export const handler = middy(async (event: APIGatewayProxyEvent): Promise<APIGat
         })
     };
 
-});
-
-// TODO: Do we need this?
-handler.use(
-    cors({
-        credentials: true
-    })
-);
+};

@@ -7,9 +7,8 @@ plugins:
   - serverless-dynamodb-local
   - serverless-offline
 
-# Uncomment to enable individual packaging
-# package:
-#   individually: true
+package:
+  individually: true
 
 provider:
 
@@ -172,11 +171,8 @@ resources:
               AllowedHeaders:
                 - '*'
               AllowedMethods:
-                #                - GET
+                - GET
                 - PUT
-              #                - POST
-              #                - DELETE
-              #                - HEAD
               MaxAge: 3000
 
     BucketPolicy:
