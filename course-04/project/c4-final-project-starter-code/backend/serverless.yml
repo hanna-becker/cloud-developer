@@ -12,9 +12,9 @@ package:
 
 provider:
 
-  #  tracing:
-  #    lambda: true
-  #    apiGateway: true
+  tracing:
+    lambda: true
+    apiGateway: true
 
   name: aws
   runtime: nodejs12.x
@@ -26,20 +26,6 @@ provider:
     TODOS_TABLE: Todos-${self:provider.stage}
     IMAGES_S3_BUCKET: serverless-todo-app-hanna-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
-  #    IS_OFFLINE: true
-
-custom:
-# TODO: uncomment for local execution
-#  dynamodb:
-#    start:
-#      port: 8000
-#      inMemory: true
-#      migrate: true
-#    stages:
-#      - dev
-#
-#  serverless-offline:
-#    httpPort: 3003
 
 functions:
 
@@ -63,6 +49,12 @@ functions:
         Action:
           - s3:GetObject
         Resource: arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*
+      - Effect: Allow
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource:
+          - '*'
 
   CreateTodo:
     handler: src/lambda/http/createTodo.handler
@@ -77,6 +69,12 @@ functions:
         Action:
           - dynamodb:PutItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+      - Effect: Allow
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource:
+          - '*'
 
   UpdateTodo:
     handler: src/lambda/http/updateTodo.handler
@@ -92,6 +90,12 @@ functions:
           - dynamodb:GetItem
           - dynamodb:UpdateItem
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODOS_TABLE}
+      - Effect: Allow
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource:
+          - '*'
 
   DeleteTodo:
     handler: src/lambda/http/deleteTodo.handler
@@ -111,6 +115,12 @@ functions:
         Action:
           - s3:DeleteObject
         Resource: arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*
+      - Effect: Allow
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource:
+          - '*'
 
   GenerateUploadUrl:
     handler: src/lambda/http/generateUploadUrl.handler
@@ -130,6 +140,12 @@ functions:
         Action:
           - s3:PutObject
         Resource: arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*
+      - Effect: Allow
+        Action:
+          - xray:PutTraceSegments
+          - xray:PutTelemetryRecords
+        Resource:
+          - '*'
 
 resources:
   Resources:
