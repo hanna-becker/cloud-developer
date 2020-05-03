@@ -4,6 +4,7 @@ service:
 plugins:
   - serverless-webpack
   - serverless-iam-roles-per-function
+  - serverless-aws-documentation
   - serverless-dynamodb-local
   - serverless-offline
 
@@ -26,6 +27,14 @@ provider:
     TODOS_TABLE: Todos-${self:provider.stage}
     IMAGES_S3_BUCKET: serverless-todo-app-hanna-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
+
+custom:
+  documentation:
+    api:
+      info:
+        version: v1.0.0
+        title: Todo App API
+        description: Serverless application for managing Todo items
 
 functions:
 
@@ -64,6 +73,12 @@ functions:
           path: todos
           cors: true
           authorizer: Auth
+          request:
+            schema:
+              application/json: ${file(src/requests/create-todo-request.json)}
+          documentation:
+            summary: Create a new Todo item
+            description: Create a new Todo item
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -84,6 +99,12 @@ functions:
           path: todos/{todoId}
           cors: true
           authorizer: Auth
+          request:
+            schema:
+              application/json: ${file(src/requests/update-todo-request.json)}
+          documentation:
+            summary: Update an existing Todo item
+            description: Update an existing Todo item
     iamRoleStatements:
       - Effect: Allow
         Action:
